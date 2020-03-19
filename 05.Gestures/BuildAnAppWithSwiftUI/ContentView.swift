@@ -8,11 +8,12 @@
 
 import SwiftUI
 /**
- Section 04 : Animations and States - 动画与状态
+ Section 05 : Gestures and Events - 手势与事件
  */
 
 struct ContentView: View {
     @State private var show = false     // 声明一个状态，简单的布尔值可以控制两个状态
+    @State var viewState = CGSize.zero  // 声明一个状态，使用 CGSize 类型，并将其 width 和 height 都初始化为 0
     var body: some View {
         ZStack {                    // 注意栈中各个组件的顺序和实际显示的层级关系
             TitleView()             // 标题视图
@@ -22,7 +23,7 @@ struct ContentView: View {
                 .background(show ? Color("card3") : Color("card4"))   //根据 show 的值确定背景色
                 .cornerRadius(20)
                 .shadow(radius: 20)
-                .offset(x: 0, y: show ? -400 : -40)             //根据 show 的值确定偏移量
+                .offset(x: self.viewState.width, y: self.viewState.height)  //根据 show 的值确定偏移量
                 .scaleEffect(0.9)
                 .rotationEffect(.degrees(show ? 0 : 10))        //根据 show 的值确定旋转角度
                 .rotation3DEffect(.degrees(10), axis: (x: 10, y: 0, z: 0))      // 三维旋转
@@ -32,7 +33,7 @@ struct ContentView: View {
                 .background(show ? Color("card4") : Color("card3"))
                 .cornerRadius(20)
                 .shadow(radius: 20)
-                .offset(x: 0, y: show ? -200 : -20)
+                .offset(x: self.viewState.width, y: self.viewState.height)//根据 show 的值确定偏移量
                 .scaleEffect(0.95)
                 .rotationEffect(Angle.degrees(show ? 0 : 5))    // 根据 show 的状态确定旋转角度
                 .rotation3DEffect(.degrees(5), axis: (x: 10, y: 0, z: 0))
@@ -43,6 +44,16 @@ struct ContentView: View {
                 .onTapGesture {                         // 定义响应的动作
                     self.show.toggle()                  // 切换 show 的状态
             }
+            .gesture(
+                DragGesture().onChanged { value in      // 拖拽事件的尾随闭包
+                    self.viewState = value.translation  // 将拖拽事件的返回值传递给 viewState
+                    self.show = true                    // 控制另一个状态，让其他的卡片在移动时展开
+                }
+                    .onEnded { value in                 // 拖拽结束，松开鼠标左键，另一个尾随闭包
+                        self.viewState = .zero          // 复位卡片位置
+                        self.show = false               // 复位所有的卡片
+                }
+            )
             BottomCardView()
                 .blur(radius: show ? 20 : 0)
                 .animation(.default)
@@ -61,7 +72,7 @@ struct CardView: View {
         VStack {
             HStack {
                 VStack(alignment: .leading) {
-                    Text("UI 设计")               // 文本框，相当于 label
+                    Text("UI 设计")                  // 文本框，相当于 label
                         .font(.title)               // 字体
                         .fontWeight(.semibold)      // 字体粗细
                         .foregroundColor(.white)    // 前景色
@@ -69,14 +80,14 @@ struct CardView: View {
                         .foregroundColor(Color("accent"))
                 }
                 Spacer()
-                Image("Logo1")      // 图片
+                Image("Logo1")                      // 图片
             }
-                .padding(.horizontal, 20)       // 水平内边距
-                .padding(.top, 20)              // 顶部内边距
+                .padding(.horizontal, 20)           // 水平内边距
+                .padding(.top, 20)                  // 顶部内边距
             Spacer()
             Image("Card1")
-                .resizable()                // 图片可改变大小，由此开始下面的各种调整
-                .aspectRatio(contentMode: .fill)        // 纵横比
+                .resizable()                        // 图片可改变大小，由此开始下面的各种调整
+                .aspectRatio(contentMode: .fill)    // 纵横比
                 .frame(width: 300, height: 110, alignment: .top)    // 定义尺寸和对齐
         }
         .frame(width: 340.0, height: 220.0)

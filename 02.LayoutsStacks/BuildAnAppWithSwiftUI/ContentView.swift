@@ -8,7 +8,7 @@
 
 import SwiftUI
 /**
- Section 2 : Layout & Stacks - 布局和堆栈
+ Section 02 : Layout & Stacks - 布局和堆栈
  */
 
 struct ContentView: View {
