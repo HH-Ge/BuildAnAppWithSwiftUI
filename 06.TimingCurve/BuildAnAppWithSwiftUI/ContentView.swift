@@ -8,44 +8,70 @@
 
 import SwiftUI
 /**
- Section 05 : Gestures and Events - 手势与事件
+ Section 06 : Timing Curve and Delay Animation - 时序曲线和延时动画
  */
 
 struct ContentView: View {
-    @State private var show = false     // 声明一个状态，简单的布尔值可以控制两个状态
-    @State var viewState = CGSize.zero  // 声明一个状态，使用 CGSize 类型，并将其 width 和 height 都初始化为 0
+    @State private var show = false         // 声明一个状态，简单的布尔值可以控制两个状态
+    @State var viewState = CGSize.zero      // 声明一个状态，使用 CGSize 类型，并将其 width 和 height 都初始化为 0
+    @State private var showCard = false     // 显示整个UI视图的状态
+    
     var body: some View {
         ZStack {                    // 注意栈中各个组件的顺序和实际显示的层级关系
-            TitleView()             // 标题视图
-                .blur(radius: show ? 10 : 0)                                    //根据 show 的值确定模糊度
-                .animation(.default)
-            BackCardView()          // 最下面一层
-                .background(show ? Color("card3") : Color("card4"))             //根据 show 的值确定背景色
+            TitleView()                                 // 标题视图
+                .blur(radius: show ? 10 : 0)            // 根据 show 的值确定模糊度
+                .opacity(showCard ? 0.4 : 1)            // 根据 showCard 的值确定透明度
+                .offset(y: showCard ? -200 : 0)         // 根据 showCard 的值确定偏移量
+                .animation(
+                    Animation
+                        .default                                  // 动画形式
+                        .delay(0.1)                               // 动画延迟
+                        .speed(2)                                 // 动画速度
+//                        .repeatCount(3)                         // 动画重复次数 为 3，往返共 3 次
+//                        .repeatCount(3, autoreverses: false)    // 动画重复次数 为 3，往返 3 次
+//                        .repeatForever(autoreverses: true)      // 呃~~根本停不下来？
+            )
+            
+            BackCardView()          // 最下面一层，第三张卡
+                .frame(width: showCard ? 300 : 340, height: 220.0)    // 使用 showCard 状态微调框体大小
+                .background(show ? Color("card3") : Color("card4"))   // 根据 show 的值确定背景色
                 .cornerRadius(20)
                 .shadow(radius: 20)
-                .offset(x: self.viewState.width, y: self.viewState.height)      //根据 show 的值确定偏移量
-                .scaleEffect(0.9)
-                .rotationEffect(.degrees(show ? 0 : 10))                        //根据 show 的值确定旋转角度
-                .rotation3DEffect(.degrees(10), axis: (x: 10, y: 0, z: 0))      // 三维旋转
+                .offset(x: self.viewState.width, y: self.viewState.height)  // 根据 show 的值确定偏移量
+                .offset(y: showCard ? -180 : 0)                             // 使用 showCard 状态控制纵向偏移
+                .scaleEffect(showCard ? 1 : 0.9)                            // 使用 showCard 状态控制缩放
+                .rotationEffect(.degrees(show ? 0 : 10))                    // 根据 show 的值确定旋转角度
+                .rotationEffect(.degrees(showCard ? -10 : 0))               // 使用 showCard 状态修正旋转
+                .rotation3DEffect(.degrees(10), axis: (x: showCard ? 0 : 10, y: 0, z: 0))     // 使用 showCard 状态控制 三维旋转
                 .blendMode(.hardLight)
-                .animation(.easeInOut(duration: 0.5))                           // 定义动画的类型和持续时间
-            BackCardView()          // 中间一层
+                .animation(.easeInOut(duration: 0.3))           // 定义动画的类型和持续时间
+            
+            BackCardView()          // 中间一层，第二张卡
+                .frame(width: 340.0, height: 220.0)     // 框体尺寸
                 .background(show ? Color("card4") : Color("card3"))
                 .cornerRadius(20)
                 .shadow(radius: 20)
-                .offset(x: self.viewState.width, y: self.viewState.height)      //根据 show 的值确定偏移量
-                .scaleEffect(0.95)
-                .rotationEffect(Angle.degrees(show ? 0 : 5))                    // 根据 show 的状态确定旋转角度
-                .rotation3DEffect(.degrees(5), axis: (x: 10, y: 0, z: 0))
+                .offset(x: self.viewState.width, y: self.viewState.height)  // 根据 show 的值确定偏移量
+                .offset(y: showCard ? -140 : 0)
+                .scaleEffect(showCard ? 1 : 0.95)
+                .rotationEffect(Angle.degrees(show ? 0 : 5))    // 根据 show 的状态确定旋转角度
+                .rotationEffect(.degrees(showCard ? -5 : 0))
+                .rotation3DEffect(.degrees(5), axis: (x: showCard ? 0 : 10, y: 0, z: 0))
                 .blendMode(.hardLight)
                 .animation(.easeInOut(duration: 0.3))   // 这个持续时间与前面不同，可以形成错落的效果
+            
             CardView()              // 最上面一层
-                // 将改变的 viewState 应用在组件的偏移量
-                .offset(x: self.viewState.width, y: self.viewState.height)
+                .frame(width: showCard ? 375 : 340.0, height: 220.0)    // 使用 showCard 状态控制 CardView 的框体大小
+                .background(Color.black)
+                //.cornerRadius(20)
+                .clipShape(RoundedRectangle(cornerRadius: showCard ? 30 : 20, style: .continuous))
+                .shadow(radius: showCard ? 30 : 20)
+                .offset(x: viewState.width, y: viewState.height)
+                .offset(y: showCard ? -100 : 0)         // 使用 showCard 控制偏移
                 .blendMode(.hardLight)
                 .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0))    // 使复位的动作更连贯
                 .onTapGesture {                         // 定义响应的动作
-                    self.show.toggle()                  // 切换 show 的状态
+                    self.showCard.toggle()              // 从 show 修改为 showCard
             }
             .gesture(
                 DragGesture().onChanged { value in      // 拖拽事件的尾随闭包
@@ -57,9 +83,11 @@ struct ContentView: View {
                         self.show = false               // 复位所有的卡片
                 }
             )
+            
             BottomCardView()
+                .offset(x: 0, y: showCard ? 360 : 1000) // 默认不显示，单击切换 showCard 为 true 时显示
                 .blur(radius: show ? 20 : 0)
-                .animation(.default)
+                .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.8))   // 时序曲线动画
         }
     }
 }
@@ -93,10 +121,6 @@ struct CardView: View {
                 .aspectRatio(contentMode: .fill)    // 纵横比
                 .frame(width: 300, height: 110, alignment: .top)    // 定义尺寸和对齐
         }
-        .frame(width: 340.0, height: 220.0)
-        .background(Color.black)
-        .cornerRadius(20)
-        .shadow(radius: 20)
     }
 }
 
@@ -105,7 +129,6 @@ struct BackCardView: View {
         VStack {
             Spacer()    //栈的占位符
         }
-            .frame(width: 340.0, height: 220.0)     // 框体尺寸
     }
 }
 
@@ -144,6 +167,6 @@ struct BottomCardView: View {
             .background(Color.white)
             .cornerRadius(30)
             .shadow(radius: 20)
-            .offset(x: 0, y: 500)
+            
     }
 }
