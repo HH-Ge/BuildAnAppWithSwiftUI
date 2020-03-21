@@ -14,7 +14,7 @@
 | ---- | ---- | ------------------------------------------------------------ |
 | 1    | 课程 | **Build an app with SwiftUI Part 2**                         |
 | 2    | 代码 | [GitHub项目](https://github.com/HH-Ge/BuildAnAppWithSwiftUI.git)    &    [码云Gitee项目（同步）](https://gitee.com/hh680821/BuildAnAppWithSwiftUI.git) |
-| 3    | 硬件 | Mac mini （2018）/ 3.2 GHz 六核Intel Core i7 / 16 GB 2667 MHz DDR4 / Intel UHD Graphics 630 1536 MB |
+| 3    | 硬件 | Mac mini （2018）/ 3.2 GHz 六核Intel Core i7 / 16 GB 2667 MHz DDR4 |
 | 4    | 软件 | mac OS Catalina                                              |
 | 5    | IDE  | Xcode 11.3.1 (11C504)                                        |
 | 6    | 语言 | Swift                                                        |
